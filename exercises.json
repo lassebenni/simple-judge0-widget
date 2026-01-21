@@ -22,18 +22,6 @@
             "entry_point": "main.py",
             "testFile": "tests/python/modules_test.py"
         },
-        "version": {
-            "name": "System: Check Version",
-            "desc": "Check Python version. (Should be 3.11)",
-            "code": "import sys\nprint(f\"Python Version: {sys.version.split()[0]}\")",
-            "testFile": "tests/python/version.py"
-        },
-        "functions": {
-            "name": "Legacy: Functions",
-            "desc": "Implement 'is_empty(val)' to return True for None or empty strings.",
-            "code": "def is_empty(val):\n    if val is None:\n        return True\n    return False",
-            "testFile": "tests/python/functions.py"
-        },
         "custom": {
             "name": "Playground",
             "desc": "Python Playground",
