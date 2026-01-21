@@ -38,7 +38,7 @@
 
         html {
             width: 100%;
-            height: 100%; /* Ensure root fills iframe */
+            height: 100%;
             margin: 0;
             padding: 0;
             overflow-x: hidden;
@@ -52,23 +52,23 @@
             min-height: 100%;
             margin: 0;
             padding: 0;
-            overflow-x: hidden; /* Force hide horizontal scrollbar */
+            overflow-x: hidden;
             transition: background-color 0.3s, color 0.3s;
         }
 
         .app-container {
             width: 100%;
-            max-width: 100%; /* Fill embed width */
+            max-width: 900px; /* Centered compact view on desktop */
+            margin: 0 auto;
             background: var(--container-bg);
-            /* Remove border/shadow for seamless embed look */
             border: none;
             border-radius: 0;
             box-shadow: none;
-            padding: 12px; /* reduced padding */
+            padding: 12px;
             display: flex;
             flex-direction: column;
-            gap: 12px; /* reduced gap */
-            min-height: 100%; /* Ensure container fills the iframe height */
+            gap: 12px;
+            min-height: 100%;
         }
 
         .header {
@@ -76,37 +76,37 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid var(--border-color);
-            padding-bottom: 8px; /* reduced */
+            padding-bottom: 8px;
         }
 
         h3 { 
             margin: 0; 
             font-weight: 600; 
-            font-size: 16px; /* reduced font size */
+            font-size: 16px;
         }
 
         .controls {
             display: flex;
-            gap: 8px; /* reduced gap */
+            gap: 8px;
             align-items: center;
         }
 
         select {
-            padding: 4px 8px; /* reduced padding */
+            padding: 4px 8px;
             border-radius: 4px;
             border: 1px solid var(--border-color);
             background: var(--bg-color);
             color: var(--text-color);
-            font-size: 13px; /* reduced font size */
+            font-size: 13px;
             cursor: pointer;
         }
 
         .instructions {
             background: var(--bg-color);
-            padding: 8px 12px; /* reduced padding */
+            padding: 8px 12px;
             border-radius: 6px;
             border-left: 3px solid var(--accent-color);
-            font-size: 13px; /* reduced font size */
+            font-size: 13px;
             line-height: 1.4;
         }
 
@@ -119,10 +119,10 @@
 
         textarea {
             width: 100%;
-            height: 160px; /* slightly smaller default height */
+            height: 160px;
             padding: 12px;
             font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
-            font-size: 13px; /* reduced font size */
+            font-size: 13px;
             border: none;
             background: var(--code-bg);
             color: var(--text-color);
@@ -135,13 +135,13 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px 12px; /* reduced padding */
+            padding: 8px 12px;
             background: var(--bg-color);
             border-top: 1px solid var(--border-color);
         }
 
         .status {
-            font-size: 12px; /* reduced font size */
+            font-size: 12px;
             font-weight: 500;
             color: var(--text-color);
             opacity: 0.8;
@@ -191,11 +191,11 @@
         #output {
             background: var(--output-bg);
             color: var(--output-text);
-            padding: 12px; /* reduced padding */
+            padding: 12px;
             border-radius: 6px;
             font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
-            font-size: 12px; /* reduced font size */
-            min-height: 60px; /* reduced min height */
+            font-size: 12px;
+            min-height: 60px;
             white-space: pre-wrap;
             overflow-x: auto;
             border: 1px solid var(--border-color);
@@ -208,7 +208,7 @@
             background: none;
             border: 1px solid var(--border-color);
             color: var(--text-color);
-            padding: 4px 8px; /* reduced padding */
+            padding: 4px 8px;
             border-radius: 4px;
             cursor: pointer;
             font-size: 12px;
@@ -238,7 +238,10 @@
             <textarea id="code" spellcheck="false"></textarea>
             <div class="toolbar">
                 <span class="status" id="status">Ready to Run</span>
-                <button class="run-btn" onclick="runCode()">Run Code ▶</button>
+                <div class="btn-group">
+                    <button class="run-btn" onclick="runCode()">Run ▶</button>
+                    <button class="verify-btn" onclick="verifyCode()">Verify ✅</button>
+                </div>
             </div>
         </div>
 
@@ -261,10 +264,11 @@
                 // Move caret
                 this.selectionStart = this.selectionEnd = start + 4;
             }
-            // Cmd+Enter or Ctrl+Enter to Run
+            // Cmd+Enter (Run), Shift+Enter (Verify)
             if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
                 e.preventDefault();
-                runCode();
+                if (e.shiftKey) verifyCode();
+                else runCode();
             }
         });
 
@@ -307,22 +311,26 @@
             version: {
                 desc: "Task: Write a script to print the Python version. It should match the server environment.",
                 code: "import sys\nprint(f\"Python Version: {sys.version.split()[0]}\")",
-                check: (out) => out.includes("3.11") ? "✅ Environment Verified (Python 3.11)" : "❌ Version Mismatch (Expected 3.11)"
+                check: (out, code) => out.includes("3.11") ? "✅ Environment Verified (Python 3.11)" : "❌ Version Mismatch (Expected 3.11)"
             },
             functions: {
                 desc: "Task: Implement `is_empty(val)` to return True for None or empty strings.",
                 code: "def is_empty(val):\n    # TODO: Implement logic here\n    return False\n\n# Verification Tests\nprint(f'{is_empty(None)=}')\nprint(f'{is_empty(\"\")=}')\nprint(f'{is_empty(\"data\")=}')",
-                check: (out) => out.includes("is_empty(None)=True") && out.includes("is_empty(\"\")=True") && out.includes("is_empty(\"data\")=False") ? "✅ Logic Correct" : "❌ Logic Failed"
+                check: (out, code) => out.includes("is_empty(None)=True") && out.includes("is_empty(\"\")=True") && out.includes("is_empty(\"data\")=False") ? "✅ Function Correct" : "❌ Logic Failed"
             },
             types: {
                 desc: "Task: Add type hints to `process_items`. It takes a list of items and a transformer function.",
                 code: "from typing import List, Callable, Any\n\n# TODO: Add type hints to arguments and return type\ndef process_items(items, transformer):\n    return [transformer(i) for i in items]\n\n# Test\ndef double(x: int) -> int: return x * 2\nprint(process_items([1, 2, 3], double))",
-                check: (out) => out.includes("[2, 4, 6]") ? "✅ Code Runs Successfully" : "❌ Execution Error"
+                check: (out, code) => {
+                    if (!out.includes("[2, 4, 6]")) return "❌ Code Execution Failed";
+                    const hasTypes = (code.includes(": List") || code.includes(": list")) && (code.includes(": Callable") || code.includes(": callable"));
+                    return hasTypes ? "✅ Type Hints Correct" : "❌ Missing Type Hints";
+                }
             },
             control: {
                 desc: "Task: Modifiy the loop to skip negative numbers and stop execution if a number is > 50.",
                 code: "numbers = [10, -5, 20, 60, 30]\nfor n in numbers:\n    # TODO: Add verify logic\n    print(n)",
-                check: (out) => !out.includes("-5") && !out.includes("60") && out.includes("20") && !out.includes("30") ? "✅ Loop Logic Correct" : "❌ Logic Incorrect"
+                check: (out, code) => !out.includes("-5") && !out.includes("60") && out.includes("20") && !out.includes("30") ? "✅ Control Flow Correct" : "❌ Output Incorrect"
             },
             custom: {
                 desc: "Playground: Write and run any Python code you want.",
@@ -335,7 +343,6 @@
             const select = document.getElementById('exerciseSelect');
             const key = select.value;
             
-            // If the exercise doesn't exist (e.g. bad URL param), fallback to version
             if (!exercises[key]) {
                 select.value = 'version';
                 loadExercise();
@@ -349,18 +356,15 @@
             document.getElementById('status').className = 'status';
             document.getElementById('output').innerText = 'Output will appear here...';
             
-            // Update URL without reloading (optional, good for UX)
             const newUrl = new URL(window.location);
             newUrl.searchParams.set('exercise', key);
             window.history.replaceState({}, '', newUrl);
         }
 
         function initApp() {
-            initTheme(); // From previous block
+            initTheme(); 
             
-            // Auto-select exercise from URL
             const params = new URLSearchParams(window.location.search);
-            // Support ?exercise=... OR ?ex=... OR ?id=...
             const exParam = params.get('exercise') || params.get('ex') || params.get('id');
             
             if (exParam && exercises[exParam]) {
@@ -372,13 +376,13 @@
 
         initApp();
 
-        async function runCode() {
+        async function execute(mode) {
             const code = document.getElementById('code').value;
             const outputEl = document.getElementById('output');
             const statusEl = document.getElementById('status');
             const exKey = document.getElementById('exerciseSelect').value;
             
-            statusEl.innerHTML = '⏳ Running...';
+            statusEl.innerHTML = mode === 'verify' ? '⏳ Verifying...' : '⏳ Running...';
             statusEl.className = 'status';
             outputEl.textContent = 'Executing...';
             
@@ -394,7 +398,6 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-// ... rest of error handling matches existing code
 
                 if (!response.ok) throw new Error(`API Error: ${response.status}`);
 
@@ -405,12 +408,16 @@
                 
                 outputEl.textContent = output;
 
-                // Verification
-                const verifyMsg = exercises[exKey].check(output);
-                if (verifyMsg.includes("✅")) {
-                    statusEl.innerHTML = `<span class="status-success">${verifyMsg}</span>`;
+                // Verification Logic
+                if (mode === 'verify') {
+                    const verifyMsg = exercises[exKey].check(output, code);
+                    if (verifyMsg.includes("✅")) {
+                        statusEl.innerHTML = `<span class="status-success">${verifyMsg}</span>`;
+                    } else {
+                        statusEl.innerHTML = `<span class="status-error">${verifyMsg}</span>`;
+                    }
                 } else {
-                    statusEl.innerHTML = `<span class="status-error">${verifyMsg}</span>`;
+                    statusEl.innerText = "Execution Complete";
                 }
 
             } catch (err) {
@@ -419,6 +426,9 @@
                 statusEl.innerHTML = '<span class="status-error">Connection Error</span>';
             }
         }
+
+        function runCode() { execute('run'); }
+        function verifyCode() { execute('verify'); }
     </script>
 </body>
 </html>
