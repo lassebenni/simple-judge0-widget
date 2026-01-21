@@ -3,74 +3,253 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Python Verification Widget</title>
+    <title>Interactive Python Runner</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 20px; }
-        .container { max-width: 800px; margin: 0 auto; border: 1px solid #ccc; border-radius: 8px; overflow: hidden; }
-        textarea { width: 100%; height: 150px; font-family: monospace; padding: 10px; border: none; border-bottom: 1px solid #ccc; resize: vertical; display: block; box-sizing: border-box;}
-        .toolbar { padding: 10px; background: #f5f5f5; display: flex; justify-content: space-between; align-items: center; }
-        button { background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; }
-        button:hover { background: #218838; }
-        #output { padding: 10px; background: #222; color: #f0f0f0; min-height: 50px; white-space: pre-wrap; font-family: monospace; margin: 0;}
-        .status { font-size: 0.9em; color: #666; }
-        .success { color: #28a745; font-weight: bold; }
-        .error { color: #dc3545; font-weight: bold; }
+        :root {
+            --bg-color: #f8f9fa;
+            --container-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #e1e4e8;
+            --accent-color: #28a745;
+            --accent-hover: #218838;
+            --code-bg: #ffffff;
+            --output-bg: #1e1e1e;
+            --output-text: #f0f0f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        body.dark-mode {
+            --bg-color: #0d1117;
+            --container-bg: #161b22;
+            --text-color: #c9d1d9;
+            --border-color: #30363d;
+            --accent-color: #238636;
+            --accent-hover: #2ea043;
+            --code-bg: #0d1117;
+            --output-bg: #0d1117;
+            --output-text: #c9d1d9;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 20px;
+            margin: 0;
+            transition: background-color 0.3s, color 0.3s;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--container-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 16px;
+        }
+
+        h3 { margin: 0; font-weight: 600; }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        select {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .instructions {
+            background: var(--bg-color);
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 4px solid var(--accent-color);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .editor-container {
+            position: relative;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 16px;
+            font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            border: none;
+            background: var(--code-bg);
+            color: var(--text-color);
+            resize: vertical;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: var(--bg-color);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .status {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-color);
+            opacity: 0.8;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        button.run-btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform 0.1s, background-color 0.2s;
+        }
+
+        button.run-btn:hover { background: var(--accent-hover); }
+        button.run-btn:active { transform: scale(0.98); }
+
+        #output {
+            background: var(--output-bg);
+            color: var(--output-text);
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+            font-size: 13px;
+            min-height: 80px;
+            white-space: pre-wrap;
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Utility classes for verification status */
+        .status-success { color: #2ea043 !important; }
+        .status-error { color: #cb2431 !important; }
+        .theme-toggle {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
 
-    <h3>Judge0 Interactive Runner (PoC)</h3>
-    
-    <div style="margin-bottom: 20px;">
-        <label for="exerciseSelect"><strong>Select Exercise:</strong></label>
-        <select id="exerciseSelect" onchange="loadExercise()">
-            <option value="version">1. Verify Python Version</option>
-            <option value="functions">2. Functions & Modules</option>
-            <option value="types">3. Type Hints</option>
-            <option value="control">4. Control Flow</option>
-            <option value="custom">Custom / Playground</option>
-        </select>
-    </div>
-    
-    <p id="instructions">Instructions will appear here...</p>
-    
-    <div class="container">
-        <textarea id="code"></textarea>
-        <div class="toolbar">
-            <span class="status" id="status">Ready</span>
-            <button onclick="runCode()">Run Code</button>
+    <div class="app-container">
+        <div class="header">
+            <h3>Interactive Python Runner</h3>
+            <div class="controls">
+                <select id="exerciseSelect" onchange="loadExercise()">
+                    <option value="version">1. Verify Setup</option>
+                    <option value="functions">2. Functions</option>
+                    <option value="types">3. Type Hints</option>
+                    <option value="control">4. Control Flow</option>
+                    <option value="custom">Playground</option>
+                </select>
+                <button class="theme-toggle" onclick="toggleTheme()">🌗</button>
+            </div>
         </div>
+
+        <div id="instructions" class="instructions">Select an exercise to begin.</div>
+
+        <div class="editor-container">
+            <textarea id="code" spellcheck="false"></textarea>
+            <div class="toolbar">
+                <span class="status" id="status">Ready to Run</span>
+                <button class="run-btn" onclick="runCode()">Run Code ▶</button>
+            </div>
+        </div>
+
         <pre id="output">Output will appear here...</pre>
     </div>
 
     <script>
-        // CONFIGURATION: Change this URL after deploying the backend to Railway
+        // CONFIGURATION
         const API_URL = "https://simple-judge0-backend-production.up.railway.app";
 
+        // THEME LOGIC
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+        }
+
+        // Auto-detect theme from URL (?theme=dark) or system preference
+        function initTheme() {
+            const params = new URLSearchParams(window.location.search);
+            const urlTheme = params.get('theme') || params.get('mode');
+            if (urlTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches && urlTheme !== 'light') {
+                // Optional: Auto-enable dark mode if system prefers it
+                // document.body.classList.add('dark-mode');
+            }
+        }
+        initTheme();
+
+        // EXERCISES
         const exercises = {
             version: {
-                desc: "Write a script to print the python version. Expected: 3.8.x",
-                code: "import sys\nprint(sys.version)",
-                check: (out) => out.includes("3.8") ? "✅ Python 3.8 detected" : "❌ Version mismatch"
+                desc: "Task: Write a script to print the Python version. It should match the server environment.",
+                code: "import sys\nprint(f\"Python Version: {sys.version.split()[0]}\")",
+                check: (out) => out.includes("3.8") ? "✅ Environment Verified (Python 3.8)" : "❌ Version Mismatch"
             },
             functions: {
-                desc: "Implement `is_empty(val)` and test it. It should return True for None or empty strings.",
-                code: "def is_empty(val):\n    # Your code here\n    return False\n\n# Tests\nprint(f'{is_empty(None)=}')\nprint(f'{is_empty(\"\")=}')",
-                check: (out) => out.includes("is_empty(None)=True") && out.includes("is_empty(\"\")=True") ? "✅ Functions working correctly" : "❌ Logic Failed"
+                desc: "Task: Implement `is_empty(val)` to return True for None or empty strings.",
+                code: "def is_empty(val):\n    # TODO: Implement logic here\n    return False\n\n# Verification Tests\nprint(f'{is_empty(None)=}')\nprint(f'{is_empty(\"\")=}')\nprint(f'{is_empty(\"data\")=}')",
+                check: (out) => out.includes("is_empty(None)=True") && out.includes("is_empty(\"\")=True") && out.includes("is_empty(\"data\")=False") ? "✅ Logic Correct" : "❌ Logic Failed"
             },
             types: {
-                desc: "Fix the type hints for `process_items`.",
-                code: "from typing import List, Callable, Any\n\n# Add types to arguments:\ndef process_items(items, transformer):\n    return [transformer(i) for i in items]\n\nprint('Types checked (runtime)')",
-                check: (out) => out.includes("Types checked") ? "✅ Code runs (Static analysis requires mypy backend)" : "❌ Error"
+                desc: "Task: Add type hints to `process_items`. It takes a list of items and a transformer function.",
+                code: "from typing import List, Callable, Any\n\n# TODO: Add type hints to arguments and return type\ndef process_items(items, transformer):\n    return [transformer(i) for i in items]\n\n# Test\ndef double(x: int) -> int: return x * 2\nprint(process_items([1, 2, 3], double))",
+                check: (out) => out.includes("[2, 4, 6]") ? "✅ Code Runs Successfully" : "❌ Execution Error"
             },
             control: {
-                desc: "Fix the loop to skip negative numbers and stop after 50.",
-                code: "numbers = [10, -5, 20, 60, 30]\nfor n in numbers:\n    # Add break/continue logic\n    print(n)",
-                check: (out) => !out.includes("-5") && !out.includes("60") && out.includes("20") ? "✅ Loop Logic Correct" : "❌ Logic Failed (Did you skip negatives/break at high values?)"
+                desc: "Task: Modifiy the loop to skip negative numbers and stop execution if a number is > 50.",
+                code: "numbers = [10, -5, 20, 60, 30]\nfor n in numbers:\n    # TODO: Add verify logic\n    print(n)",
+                check: (out) => !out.includes("-5") && !out.includes("60") && out.includes("20") && !out.includes("30") ? "✅ Loop Logic Correct" : "❌ Logic Incorrect"
             },
             custom: {
-                desc: "Free playground. Run any Python code.",
-                code: "print('Hello Judge0!')",
+                desc: "Playground: Write and run any Python code you want.",
+                code: "# Write your Python code here\nprint(\"Hello world!\")",
                 check: () => "✅ Executed"
             }
         };
@@ -80,7 +259,8 @@
             const ex = exercises[key];
             document.getElementById('instructions').innerText = ex.desc;
             document.getElementById('code').value = ex.code;
-            document.getElementById('status').innerText = 'Ready';
+            document.getElementById('status').innerText = 'Ready to Run';
+            document.getElementById('status').className = 'status';
             document.getElementById('output').innerText = 'Output will appear here...';
         }
 
@@ -93,12 +273,13 @@
             const statusEl = document.getElementById('status');
             const exKey = document.getElementById('exerciseSelect').value;
             
-            statusEl.textContent = 'Running...';
+            statusEl.innerHTML = '⏳ Running...';
+            statusEl.className = 'status';
             outputEl.textContent = 'Executing...';
             
             const payload = {
                 source_code: code,
-                language_id: 71, // Python 3.8.1 (Judge0 Default)
+                language_id: 71, // Python 3.8.1
                 stdin: ""
             };
 
@@ -121,15 +302,15 @@
                 // Verification
                 const verifyMsg = exercises[exKey].check(output);
                 if (verifyMsg.includes("✅")) {
-                    statusEl.innerHTML = `<span class="success">${verifyMsg}</span>`;
+                    statusEl.innerHTML = `<span class="status-success">${verifyMsg}</span>`;
                 } else {
-                    statusEl.innerHTML = `<span class="error">${verifyMsg}</span>`;
+                    statusEl.innerHTML = `<span class="status-error">${verifyMsg}</span>`;
                 }
 
             } catch (err) {
                 console.error(err);
-                outputEl.textContent = `Connection failure. Is Docker running?\n${err.message}`;
-                statusEl.textContent = 'Error';
+                outputEl.textContent = `Connection failure.\n${err.message}`;
+                statusEl.innerHTML = '<span class="status-error">Connection Error</span>';
             }
         }
     </script>
