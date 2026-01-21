@@ -35,12 +35,11 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
-            padding: 0; /* Remove padding for embed */
+            padding: 0;
             margin: 0;
             transition: background-color 0.3s, color 0.3s;
-            display: flex;
-            justify-content: center;
-            min-height: 100vh;
+            /* Was causing height issues in Notion embeds */
+            min-height: auto; 
         }
 
         .app-container {
