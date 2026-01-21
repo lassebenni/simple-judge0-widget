@@ -1,5 +1,6 @@
 import os
 import subprocess
+import sys
 
 def test():
     try:
@@ -14,16 +15,25 @@ def test():
         # Run main.py
         result = subprocess.run([sys.executable, "main.py"], capture_output=True, text=True)
         output = result.stdout.strip()
-
-        # We expect main.py to print the cleaned name
-        if "alice" in output.lower() and "bob" in output.lower():
-            print("✅_PASS_✅")
+        
+        # Default state utility just returns the string as is, so output would be:
+        #   ALICE  
+        #   bob 
+        # (or similar)
+        
+        # We expect cleaned names: "alice" and "bob"
+        if "alice" in output and "bob" in output and "  " not in output:
+             # Further check: should be lowercase
+             if output.lower() == output:
+                print("✅_PASS_✅")
+                return
+             else:
+                print(f"❌_FAIL: Output should be lowercase. Got: {output}")
         else:
-            print(f"❌_FAIL: Output did not contain expected cleaned names 'alice' and 'bob'. Got: {output}")
+            print(f"❌_FAIL: Expected cleaned names 'alice' and 'bob' without extra spaces. Got: {output}")
 
     except Exception as e:
         print(f"❌_FAIL: {str(e)}")
 
 if __name__ == "__main__":
-    import sys
     test()
