@@ -291,79 +291,32 @@
         }
         initTheme();
 
-        // EXERCISES (Now with Python Test Code)
+        // EXERCISES (Logic separated into tests/*.py)
         const exercises = {
             version: {
                 desc: "Task: Check Python version. (Should be 3.11)",
                 code: "import sys\nprint(f\"Python Version: {sys.version.split()[0]}\")",
-                test: `
-import sys
-try:
-    v = sys.version.split()[0]
-    assert "3.11" in v, f"Expected 3.11, got {v}"
-    print("✅_PASS_✅")
-except Exception as e:
-    print(f"❌_FAIL: {e}")`
+                testFile: "tests/version.py"
             },
             functions: {
                 desc: "Task: Implement 'is_empty(val)' to return True for None or empty strings.",
                 code: "def is_empty(val):\n    # TODO: Implement logic here\n    if val is None:\n        return True\n    return False",
-                test: `
-try:
-    assert is_empty(None) is True, "is_empty(None) should be True"
-    assert is_empty("") is True, "is_empty('') should be True"
-    assert is_empty("text") is False, "is_empty('text') should be False"
-    assert is_empty(0) is False, "is_empty(0) should be False"
-    print("✅_PASS_✅")
-except Exception as e:
-    print(f"❌_FAIL: {e}")`
+                testFile: "tests/functions.py"
             },
             types: {
                 desc: "Task: Add type hints to 'process_items'.",
                 code: "from typing import List, Callable, Any\n\ndef process_items(items, transformer):\n    return [transformer(i) for i in items]\n\n# Test helper\ndef double(x: int) -> int: return x * 2",
-                test: `
-import inspect
-from typing import List, Callable
-try:
-    sig = inspect.signature(process_items)
-    
-    # 1. Check 'items' (Should be List)
-    t_items = sig.parameters['items'].annotation
-    assert t_items != inspect._empty, "Missing type hint for 'items'"
-    assert "List" in str(t_items) or "list" in str(t_items), f"'items' should be a List, not {t_items}"
-
-    # 2. Check 'transformer' (Should be Callable)
-    t_trans = sig.parameters['transformer'].annotation
-    assert t_trans != inspect._empty, "Missing type hint for 'transformer'"
-    assert "Callable" in str(t_trans) or "callable" in str(t_trans), f"'transformer' should be a Callable, not {t_trans}"
-
-    # 3. Check Return Type (Should be List)
-    t_ret = sig.return_annotation
-    assert t_ret != inspect._empty, "Missing return type hint"
-    assert "List" in str(t_ret) or "list" in str(t_ret), f"Return type should be a List, not {t_ret}"
-    
-    # 4. Logic check
-    assert process_items([1,2], lambda x: x*2) == [2,4]
-    print("✅_PASS_✅")
-except Exception as e:
-    print(f"❌_FAIL: {e}")`
+                testFile: "tests/types.py"
             },
             control: {
                 desc: "Task: Loop numbers. Skip negative, Stop if > 50.",
                 code: "numbers = [10, -5, 20, 60, 30]\nfor n in numbers:\n    print(n)",
-                // We capture stdout to test logic
-                test: `
-# This test is implicit because we can't easily capture user stdout from inside the script without redirection
-# So we just check if the output lines match expected
-print("✅_PASS_✅") 
-# TODO: Complex stdout capture if needed, 
-# for now control flow tasks are hard to unit test without wrapping logic in a function.
-` 
+                testFile: "tests/control.py"
             },
             custom: {
                 desc: "Playground",
                 code: "print('Hello')",
-                test: "print('✅_PASS_✅')"
+                testFile: "tests/custom.py"
             }
         };
 
@@ -403,9 +356,20 @@ print("✅_PASS_✅")
             statusEl.className = 'status';
             outputEl.textContent = 'Executing...';
 
-            // If VERIFY mode, append the hidden test code
+            // If VERIFY mode, fetch and append the test code
             if (mode === 'verify') {
-                code += "\n\n# --- VERIFICATION TESTS ---\n" + exercises[exKey].test;
+                try {
+                    const testUrl = exercises[exKey].testFile;
+                    const testResp = await fetch(testUrl);
+                    if (!testResp.ok) throw new Error(`Failed to load tests: ${testUrl}`);
+                    const testCode = await testResp.text();
+                    
+                    code += "\n\n# --- VERIFICATION TESTS ---\n" + testCode;
+                } catch (e) {
+                    console.error("Test Load Error:", e);
+                    statusEl.innerText = "❌ Failed to load validation tests";
+                    return;
+                }
             }
 
             const payload = {
