@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Python Runner</title>
+    <title>Interactive Runner</title>
     <style>
         :root {
             --bg-color: #f8f9fa;
@@ -176,7 +176,19 @@
 
         /* SIMPLE UI STYLES */
         .simple-editor { margin-bottom: 0; }
-        #code-simple { height: 300px; border-radius: 6px; border: 1px solid var(--border-color); }
+        #code-simple { 
+            width: 100%;
+            height: 300px; 
+            border-radius: 6px; 
+            border: 1px solid var(--border-color); 
+            padding: 12px;
+            font-family: 'Menlo', 'Monaco', monospace;
+            font-size: 13px;
+            background: var(--code-bg);
+            color: var(--text-color);
+            resize: vertical;
+            outline: none;
+        }
 
         .toolbar {
             display: flex;
@@ -216,6 +228,7 @@
             min-height: 80px;
             white-space: pre-wrap;
             border: 1px solid var(--border-color);
+            overflow-x: auto;
         }
 
         .theme-toggle { background: none; border: 1px solid var(--border-color); color: var(--text-color); padding: 4px 8px; border-radius: 4px; cursor: pointer; }
@@ -224,7 +237,7 @@
 <body class="dark-mode">
     <div class="app-container">
         <div class="header">
-            <h3 id="appTitle">Interactive Python Runner</h3>
+            <h3 id="appTitle">Interactive Runner</h3>
             <div class="controls">
                 <select id="exerciseSelect" onchange="loadExercise()">
                     <!-- Options injected by JS -->
@@ -250,10 +263,10 @@
         </div>
 
         <div class="toolbar">
-            <span class="status" id="status">Ready to Run</span>
+            <span class="status" id="status">Ready</span>
             <div class="btn-group">
-                <button class="run-btn" onclick="runCode()">Run ▶</button>
-                <button class="verify-btn" onclick="verifyCode()">Verify ✅</button>
+                <button class="run-btn" id="runBtn" onclick="runCode()">Run ▶</button>
+                <button class="verify-btn" id="verifyBtn" onclick="verifyCode()">Verify ✅</button>
             </div>
         </div>
 
@@ -271,10 +284,6 @@
         let activeFileKey = '';
 
         // UI Helpers
-        function getActiveTextArea() {
-            return isProjectView ? document.getElementById('code') : document.getElementById('code-simple');
-        }
-
         function toggleTheme() { document.body.classList.toggle('dark-mode'); }
 
         // Keyboard & Input
@@ -383,9 +392,12 @@
                     currentLang = 'javascript';
                     exercises = config.javascript;
                     document.getElementById('appTitle').innerText = "Interactive JavaScript Runner";
+                    document.title = "Interactive JavaScript Runner";
                 } else {
                     currentLang = 'python';
                     exercises = config.python;
+                    document.getElementById('appTitle').innerText = "Interactive Python Runner";
+                    document.title = "Interactive Python Runner";
                 }
 
                 const select = document.getElementById('exerciseSelect');
@@ -405,6 +417,10 @@
                 console.error(e);
                 document.getElementById('instructions').innerText = "Error loading exercises.";
             }
+
+            if (params.get('theme') === 'light') {
+                document.body.classList.remove('dark-mode');
+            }
         }
 
         async function execute(mode) {
@@ -423,7 +439,7 @@
 
             if (isProjectView) {
                 payload.files = Object.entries(projectFiles).map(([name, f]) => ({ name, content: f.content }));
-                payload.entry_point = ex.entry_point || "main.py";
+                payload.entry_point = ex.entry_point || (currentLang === 'javascript' ? "main.js" : "main.py");
             } else {
                 payload.source_code = document.getElementById('code-simple').value;
             }
@@ -432,13 +448,15 @@
             if (mode === 'verify') {
                 try {
                     const testResp = await fetch(ex.testFile);
+                    if (!testResp.ok) throw new Error("Test file not found");
                     const testCode = await testResp.text();
                     
                     if (isProjectView) {
-                        payload.files.push({ name: "_test_script" + (currentLang === 'javascript' ? '.js' : '.py'), content: testCode });
-                        payload.entry_point = "_test_script" + (currentLang === 'javascript' ? '.js' : '.py');
+                        const testFileName = "_test_script" + (currentLang === 'javascript' ? '.js' : '.py');
+                        payload.files.push({ name: testFileName, content: testCode });
+                        payload.entry_point = testFileName;
                     } else {
-                        payload.source_code += "\n\n/* TEST */\n" + testCode;
+                        payload.source_code += (currentLang === 'javascript' ? "\n\n/* TEST */\n" : "\n\n# TEST\n") + testCode;
                     }
                 } catch (e) {
                     statusEl.innerText = "❌ Test Load Fail";
@@ -480,6 +498,5 @@
 
         initApp();
     </script>
-
 </body>
 </html>
