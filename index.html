@@ -344,10 +344,20 @@
             // Populate Select
             const select = document.getElementById('exerciseSelect');
             select.innerHTML = '';
+            
+            let index = 1;
             for (const [key, val] of Object.entries(exercises)) {
                 const opt = document.createElement('option');
                 opt.value = key;
-                opt.innerText = val.desc.substring(0, 40) + (val.desc.length > 40 ? '...' : ''); // Truncate for display
+                
+                // Numbering logic: Don't number 'custom' (Playground)
+                let label = val.name || key;
+                if (key !== 'custom') {
+                    label = `${index}. ${label}`;
+                    index++;
+                }
+                
+                opt.innerText = label;
                 select.appendChild(opt);
             }
 
