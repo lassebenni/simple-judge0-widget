@@ -291,8 +291,8 @@
         }
         initTheme();
 
-        // EXERCISES (Logic separated into tests/*.py)
-        const exercises = {
+        // EXERCISES
+        const exercisesPython = {
             version: {
                 desc: "Task: Check Python version. (Should be 3.11)",
                 code: "import sys\nprint(f\"Python Version: {sys.version.split()[0]}\")",
@@ -315,14 +315,30 @@
             },
             custom: {
                 desc: "Playground",
-                code: "print('Hello')",
+                code: "print('Hello Python!')",
                 testFile: "tests/custom.py"
             }
         };
 
+        const exercisesJS = {
+            demo: {
+                desc: "Task: Write a function 'sum(a, b)' that returns the sum.",
+                code: "function sum(a, b) {\n    // TODO: Implement\n    return 0;\n}",
+                testFile: "tests/js_demo.js"
+            },
+            custom: {
+                desc: "Playground",
+                code: "console.log('Hello JavaScript!');",
+                testFile: "tests/js_demo.js" // Reuse for now
+            }
+        };
+
+        let currentLang = 'python';
+        let exercises = exercisesPython;
+
         function loadExercise() {
             const key = document.getElementById('exerciseSelect').value;
-            if (!exercises[key]) return; // Safety
+            if (!exercises[key]) return; 
             const ex = exercises[key];
             
             document.getElementById('instructions').innerText = ex.desc;
@@ -338,9 +354,28 @@
 
         function initApp() {
             const params = new URLSearchParams(window.location.search);
+            
+            // Detect Language
+            if (params.get('lang') === 'javascript' || params.get('lang') === 'js') {
+                currentLang = 'javascript';
+                exercises = exercisesJS;
+                document.title = "Interactive JavaScript Runner";
+                document.querySelector('h3').innerText = "Interactive JavaScript Runner";
+            }
+
+            // Populate Select
+            const select = document.getElementById('exerciseSelect');
+            select.innerHTML = '';
+            for (const [key, val] of Object.entries(exercises)) {
+                const opt = document.createElement('option');
+                opt.value = key;
+                opt.innerText = val.desc.substring(0, 40) + (val.desc.length > 40 ? '...' : ''); // Truncate for display
+                select.appendChild(opt);
+            }
+
             const exParam = params.get('exercise') || params.get('ex');
             if (exParam && exercises[exParam]) {
-                document.getElementById('exerciseSelect').value = exParam;
+                select.value = exParam;
             }
             loadExercise();
         }
@@ -364,7 +399,7 @@
                     if (!testResp.ok) throw new Error(`Failed to load tests: ${testUrl}`);
                     const testCode = await testResp.text();
                     
-                    code += "\n\n# --- VERIFICATION TESTS ---\n" + testCode;
+                    code += "\n\n/* --- VERIFICATION TESTS --- */\n" + testCode;
                 } catch (e) {
                     console.error("Test Load Error:", e);
                     statusEl.innerText = "❌ Failed to load validation tests";
@@ -374,7 +409,7 @@
 
             const payload = {
                 source_code: code,
-                language_id: 92,
+                language_id: currentLang === 'javascript' ? 63 : 92,
                 stdin: ""
             };
 
@@ -392,20 +427,15 @@
                 output = output.trim() || "No output";
 
                 // Clean up the output display
-                // If it passes, we don't necessarily want to show "✅_PASS_✅" in the big box, 
-                // just the status bar.
                 if (mode === 'verify') {
                     if (output.includes("✅_PASS_✅")) {
                         statusEl.innerHTML = '<span class="status-success">✅ Verification Passed!</span>';
-                        // Remove the token from display
                         output = output.replace("✅_PASS_✅", "").trim();
                     } else if (output.includes("❌_FAIL:")) {
-                        // Extract error
                         const match = output.match(/❌_FAIL: (.*)/);
                         const err = match ? match[1] : "Check logic";
                         statusEl.innerHTML = `<span class="status-error">❌ ${err}</span>`;
                     } else {
-                        // If output doesnt contain either, maybe syntax error
                         statusEl.innerHTML = '<span class="status-error">❌ Execution/Syntax Error</span>';
                     }
                 } else {
