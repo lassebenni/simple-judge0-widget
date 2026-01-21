@@ -245,20 +245,24 @@
             }
         });
 
-        // Disable Paste (Force learning)
-        document.getElementById('code').addEventListener('paste', function(e) {
+        // Disable Paste & Drag-and-Drop (Force learning)
+        function blockInput(e) {
             e.preventDefault();
             const statusEl = document.getElementById('status');
-            const originalText = "Ready to Run"; // Reset to default state
+            const originalText = "Ready to Run";
             
-            statusEl.innerText = "⚠️ Pasting disabled (Type it out!)";
+            statusEl.innerText = "⚠️ Copy/Paste disabled (Type it out!)";
             statusEl.style.color = "#cb2431";
             
             setTimeout(() => {
                 statusEl.innerText = originalText;
                 statusEl.style.color = "";
             }, 2000);
-        });
+        }
+
+        const editor = document.getElementById('code');
+        editor.addEventListener('paste', blockInput);
+        editor.addEventListener('drop', blockInput);
 
         // THEME LOGIC
         function toggleTheme() {
