@@ -245,6 +245,21 @@
             }
         });
 
+        // Disable Paste (Force learning)
+        document.getElementById('code').addEventListener('paste', function(e) {
+            e.preventDefault();
+            const statusEl = document.getElementById('status');
+            const originalText = "Ready to Run"; // Reset to default state
+            
+            statusEl.innerText = "⚠️ Pasting disabled (Type it out!)";
+            statusEl.style.color = "#cb2431";
+            
+            setTimeout(() => {
+                statusEl.innerText = originalText;
+                statusEl.style.color = "";
+            }, 2000);
+        });
+
         // THEME LOGIC
         function toggleTheme() {
             document.body.classList.toggle('dark-mode');
