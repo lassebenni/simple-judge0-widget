@@ -4,13 +4,13 @@
             "name": "Calculate Stats",
             "desc": "Task: Implement 'calculate_stats(numbers, rounded=False)'. Return a tuple (sum, average). If rounded is True, round the average to the nearest integer.",
             "code": "def calculate_stats(numbers, rounded=False):\n    # TODO: Calculate sum and average\n    total = 0\n    avg = 0\n    return (total, avg)",
-            "testFile": "tests/python/stats_test.py"
+            "testFile": "tests/python/week_1/stats_test.py"
         },
         "main_guard": {
             "name": "Main Guard",
             "desc": "Task: Fix the script below so that the 'Testing...' output ONLY appears when run directly, not when imported as a module.",
             "code": "def double(x):\n    return x * 2\n\n# TODO: Wrap this in a main guard\nprint('Testing double function...')\nprint(double(21))",
-            "testFile": "tests/python/guard_test.py"
+            "testFile": "tests/python/week_1/guard_test.py"
         },
         "modules_demo": {
             "name": "Modular Cleanup (Project)",
@@ -20,7 +20,7 @@
                 "utils.py": { "content": "def clean_val(s):\n    # TODO: strip and lowercase\n    return s" }
             },
             "entry_point": "main.py",
-            "testFile": "tests/python/modules_test.py"
+            "testFile": "tests/python/week_1/modules_test.py"
         },
         "custom": {
             "name": "Playground",
