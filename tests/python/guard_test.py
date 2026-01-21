@@ -1,40 +1,51 @@
 import io
 import sys
+import os
 from contextlib import redirect_stdout
+
+# Ensure we can import from the current directory
+sys.path.append(os.getcwd())
 
 def test():
     try:
-        # Capture output during import
+        # 1. Check for prints during import
         f = io.StringIO()
         with redirect_stdout(f):
             try:
-                # In our Project Mode, the user's main file is always 'main.py'
+                # If 'main' was already imported (somehow), reload it
+                if 'main' in sys.modules:
+                    del sys.modules['main']
                 import main
             except ImportError:
-                # If we are in simple mode (appending), 'main' won't exist as a separate module
-                # In that case, the naked prints will have ALREADY executed.
-                # But notice: the 'main_guard' exercise is best tested in Project Mode.
-                # However, we can try to find if 'double' is in globals and if output was already produced
-                print("❌_FAIL: Could not import 'main.py'. Are you in Project Mode?")
+                # If main.py doesn't exist, maybe it's simple mode?
+                # In simple mode, the code is already in globals().
+                # But for the guard exercise, we MUST be in project mode to test it properly.
+                # However, if it's simple mode, the user's code RAN before the test.
+                # We can't catch those prints retrospectively easily.
+                # SO: We'll force this exercise to only pass if it can be imported cleanly.
+                print("❌_FAIL: Could not find 'main.py'. This exercise requires Project Mode view.")
+                return
+            except Exception as e:
+                print(f"❌_FAIL: Unexpected error: {str(e)}")
                 return
         
         output = f.getvalue().strip()
         if output:
-            print(f"❌_FAIL: Script printed output during import: '{output}'. Use 'if __name__ == \"__main__\":' to guard your prints.")
+            print(f"❌_FAIL: The script printed output during import: '{output}'. You must wrap your tests in 'if __name__ == \"__main__\":' to prevent this.")
             return
             
-        # Also check if the function exists
+        # 2. Check if the function exists and works
         if not hasattr(main, 'double'):
             print("❌_FAIL: Function 'double' not found in main.py")
             return
-
+            
         if main.double(10) != 20:
-             print("❌_FAIL: Function 'double' does not work correctly.")
-             return
+            print("❌_FAIL: Function 'double' is not implemented correctly.")
+            return
 
         print("✅_PASS_✅")
     except Exception as e:
-        print(f"❌_FAIL: {str(e)}")
+        print(f"❌_FAIL: Internal test error: {str(e)}")
 
 if __name__ == "__main__":
     test()
