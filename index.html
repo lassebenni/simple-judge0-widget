@@ -291,60 +291,12 @@
         }
         initTheme();
 
-        // EXERCISES
-        const exercisesPython = {
-            version: {
-                desc: "Task: Check Python version. (Should be 3.11)",
-                code: "import sys\nprint(f\"Python Version: {sys.version.split()[0]}\")",
-                testFile: "tests/version.py"
-            },
-            functions: {
-                desc: "Task: Implement 'is_empty(val)' to return True for None or empty strings.",
-                code: "def is_empty(val):\n    # TODO: Implement logic here\n    if val is None:\n        return True\n    return False",
-                testFile: "tests/functions.py"
-            },
-            types: {
-                desc: "Task: Add type hints to 'process_items'.",
-                code: "from typing import List, Callable, Any\n\ndef process_items(items, transformer):\n    return [transformer(i) for i in items]\n\n# Test helper\ndef double(x: int) -> int: return x * 2",
-                testFile: "tests/types.py"
-            },
-            control: {
-                desc: "Task: Modify loop. 1) Skip negatives. 2) Break if > 50. Append valid nums to 'result'.",
-                code: "numbers = [10, -5, 20, 60, 30]\nresult = []\n\nfor n in numbers:\n    # TODO: Implement logic\n    print(n)\n    result.append(n)",
-                testFile: "tests/control.py"
-            },
-            custom: {
-                desc: "Playground",
-                code: "print('Hello Python!')",
-                testFile: "tests/custom.py"
-            }
-        };
-
-        const exercisesJS = {
-            variables: {
-                desc: "Task: 1. Set 'firstName' to 'Alice'. 2. Set 'minutes' to 10 and 'seconds' to minutes * 60.",
-                code: "// TODO: Declare variable 'firstName' with value 'Alice'\n\n// TODO: Calculate seconds\nlet minutes = 5;\nlet seconds = 0;",
-                testFile: "tests/js_variables.js"
-            },
-            conditionals: {
-                desc: "Task: Implement 'checkGrade(score)'. Return 'Passed' if >= 60, else 'Failed'.",
-                code: "function checkGrade(score) {\n    // TODO: Write if/else logic\n    return 'Failed';\n}",
-                testFile: "tests/js_conditionals.js"
-            },
-            demo: {
-                desc: "Task: Write a function 'sum(a, b)' that returns the sum.",
-                code: "function sum(a, b) {\n    // TODO: Implement\n    return 0;\n}",
-                testFile: "tests/js_demo.js"
-            },
-            custom: {
-                desc: "Playground",
-                code: "console.log('Hello JavaScript!');",
-                testFile: "tests/js_demo.js" // Reuse for now
-            }
-        };
-
+        // EXERCISES (Loaded dynamically)
+        let exercisesPython = {};
+        let exercisesJS = {};
+        
         let currentLang = 'python';
-        let exercises = exercisesPython;
+        let exercises = {}; // Will be set after load
 
         function loadExercise() {
             const key = document.getElementById('exerciseSelect').value;
@@ -362,7 +314,20 @@
             window.history.replaceState({}, '', newUrl);
         }
 
-        function initApp() {
+        async function initApp() {
+            // Fetch configuration
+            try {
+                const resp = await fetch('exercises.json');
+                if (!resp.ok) throw new Error("Failed to load exercises.json");
+                const config = await resp.json();
+                exercisesPython = config.python;
+                exercisesJS = config.javascript;
+            } catch (e) {
+                console.error(e);
+                document.getElementById('instructions').innerText = "❌ Error loading exercises configuration.";
+                return;
+            }
+
             const params = new URLSearchParams(window.location.search);
             
             // Detect Language
@@ -371,6 +336,9 @@
                 exercises = exercisesJS;
                 document.title = "Interactive JavaScript Runner";
                 document.querySelector('h3').innerText = "Interactive JavaScript Runner";
+            } else {
+                currentLang = 'python';
+                exercises = exercisesPython;
             }
 
             // Populate Select

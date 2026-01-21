@@ -1,0 +1,51 @@
+{
+    "python": {
+        "version": {
+            "desc": "Task: Check Python version. (Should be 3.11)",
+            "code": "import sys\nprint(f\"Python Version: {sys.version.split()[0]}\")",
+            "testFile": "tests/python/version.py"
+        },
+        "functions": {
+            "desc": "Task: Implement 'is_empty(val)' to return True for None or empty strings.",
+            "code": "def is_empty(val):\n    # TODO: Implement logic here\n    if val is None:\n        return True\n    return False",
+            "testFile": "tests/python/functions.py"
+        },
+        "types": {
+            "desc": "Task: Add type hints to 'process_items'.",
+            "code": "from typing import List, Callable, Any\n\ndef process_items(items, transformer):\n    return [transformer(i) for i in items]\n\n# Test helper\ndef double(x: int) -> int: return x * 2",
+            "testFile": "tests/python/types.py"
+        },
+        "control": {
+            "desc": "Task: Modify loop. 1) Skip negatives. 2) Break if > 50. Append valid nums to 'result'.",
+            "code": "numbers = [10, -5, 20, 60, 30]\nresult = []\n\nfor n in numbers:\n    # TODO: Implement logic\n    print(n)\n    result.append(n)",
+            "testFile": "tests/python/control.py"
+        },
+        "custom": {
+            "desc": "Playground",
+            "code": "print('Hello Python!')",
+            "testFile": "tests/python/custom.py"
+        }
+    },
+    "javascript": {
+        "variables": {
+            "desc": "Task: 1. Set 'firstName' to 'Alice'. 2. Set 'minutes' to 10 and 'seconds' to minutes * 60.",
+            "code": "// TODO: Declare variable 'firstName' with value 'Alice'\n\n// TODO: Calculate seconds\nlet minutes = 5;\nlet seconds = 0;",
+            "testFile": "tests/javascript/js_variables.js"
+        },
+        "conditionals": {
+            "desc": "Task: Implement 'checkGrade(score)'. Return 'Passed' if >= 60, else 'Failed'.",
+            "code": "function checkGrade(score) {\n    // TODO: Write if/else logic\n    return 'Failed';\n}",
+            "testFile": "tests/javascript/js_conditionals.js"
+        },
+        "demo": {
+            "desc": "Task: Write a function 'sum(a, b)' that returns the sum.",
+            "code": "function sum(a, b) {\n    // TODO: Implement\n    return 0;\n}",
+            "testFile": "tests/javascript/js_demo.js"
+        },
+        "custom": {
+            "desc": "Playground",
+            "code": "console.log('Hello JavaScript!');",
+            "testFile": "tests/javascript/js_demo.js"
+        }
+    }
+}
