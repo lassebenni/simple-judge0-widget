@@ -226,8 +226,9 @@
         // CONFIGURATION
         const API_URL = "https://simple-judge0-backend-production.up.railway.app";
 
-        // Enable Tab Indentation
+        // Enable Tab Indentation & Shortcuts
         document.getElementById('code').addEventListener('keydown', function(e) {
+            // Tab for indentation
             if (e.key === 'Tab') {
                 e.preventDefault();
                 const start = this.selectionStart;
@@ -236,6 +237,11 @@
                 this.value = this.value.substring(0, start) + "    " + this.value.substring(end);
                 // Move caret
                 this.selectionStart = this.selectionEnd = start + 4;
+            }
+            // Cmd+Enter or Ctrl+Enter to Run
+            if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+                e.preventDefault();
+                runCode();
             }
         });
 
