@@ -55,6 +55,16 @@
             "desc": "Playground",
             "code": "console.log('Hello JavaScript!');",
             "testFile": "tests/javascript/js_demo.js"
+        },
+        "json_parser": {
+            "name": "JSON Parser Project",
+            "desc": "Task: Create a project with multiple files. 1) 'data.json' with content. 2) 'main.js' that reads it.",
+            "files": {
+                "main.js": { "content": "const data = require('./data.json');\nconsole.log('User:', data.name);" },
+                "data.json": { "content": "{\n  \"name\": \"Alice\",\n  \"age\": 25\n}" }
+            },
+            "entry_point": "main.js",
+            "testFile": "tests/javascript/js_project_test.js"
         }
     }
 }
