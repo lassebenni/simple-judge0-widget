@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Verification Widget</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; border: 1px solid #ccc; border-radius: 8px; overflow: hidden; }
+        textarea { width: 100%; height: 150px; font-family: monospace; padding: 10px; border: none; border-bottom: 1px solid #ccc; resize: vertical; display: block; box-sizing: border-box;}
+        .toolbar { padding: 10px; background: #f5f5f5; display: flex; justify-content: space-between; align-items: center; }
+        button { background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #218838; }
+        #output { padding: 10px; background: #222; color: #f0f0f0; min-height: 50px; white-space: pre-wrap; font-family: monospace; margin: 0;}
+        .status { font-size: 0.9em; color: #666; }
+        .success { color: #28a745; font-weight: bold; }
+        .error { color: #dc3545; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <h3>Judge0 Interactive Runner (PoC)</h3>
+    
+    <div style="margin-bottom: 20px;">
+        <label for="exerciseSelect"><strong>Select Exercise:</strong></label>
+        <select id="exerciseSelect" onchange="loadExercise()">
+            <option value="version">1. Verify Python Version</option>
+            <option value="functions">2. Functions & Modules</option>
+            <option value="types">3. Type Hints</option>
+            <option value="control">4. Control Flow</option>
+            <option value="custom">Custom / Playground</option>
+        </select>
+    </div>
+    
+    <p id="instructions">Instructions will appear here...</p>
+    
+    <div class="container">
+        <textarea id="code"></textarea>
+        <div class="toolbar">
+            <span class="status" id="status">Ready</span>
+            <button onclick="runCode()">Run Code</button>
+        </div>
+        <pre id="output">Output will appear here...</pre>
+    </div>
+
+    <script>
+        // CONFIGURATION: Change this URL after deploying the backend to Railway
+        const API_URL = "https://simple-judge0-backend-production.up.railway.app";
+
+        const exercises = {
+            version: {
+                desc: "Write a script to print the python version. Expected: 3.8.x",
+                code: "import sys\nprint(sys.version)",
+                check: (out) => out.includes("3.8") ? "✅ Python 3.8 detected" : "❌ Version mismatch"
+            },
+            functions: {
+                desc: "Implement `is_empty(val)` and test it. It should return True for None or empty strings.",
+                code: "def is_empty(val):\n    # Your code here\n    return False\n\n# Tests\nprint(f'{is_empty(None)=}')\nprint(f'{is_empty(\"\")=}')",
+                check: (out) => out.includes("is_empty(None)=True") && out.includes("is_empty(\"\")=True") ? "✅ Functions working correctly" : "❌ Logic Failed"
+            },
+            types: {
+                desc: "Fix the type hints for `process_items`.",
+                code: "from typing import List, Callable, Any\n\n# Add types to arguments:\ndef process_items(items, transformer):\n    return [transformer(i) for i in items]\n\nprint('Types checked (runtime)')",
+                check: (out) => out.includes("Types checked") ? "✅ Code runs (Static analysis requires mypy backend)" : "❌ Error"
+            },
+            control: {
+                desc: "Fix the loop to skip negative numbers and stop after 50.",
+                code: "numbers = [10, -5, 20, 60, 30]\nfor n in numbers:\n    # Add break/continue logic\n    print(n)",
+                check: (out) => !out.includes("-5") && !out.includes("60") && out.includes("20") ? "✅ Loop Logic Correct" : "❌ Logic Failed (Did you skip negatives/break at high values?)"
+            },
+            custom: {
+                desc: "Free playground. Run any Python code.",
+                code: "print('Hello Judge0!')",
+                check: () => "✅ Executed"
+            }
+        };
+
+        function loadExercise() {
+            const key = document.getElementById('exerciseSelect').value;
+            const ex = exercises[key];
+            document.getElementById('instructions').innerText = ex.desc;
+            document.getElementById('code').value = ex.code;
+            document.getElementById('status').innerText = 'Ready';
+            document.getElementById('output').innerText = 'Output will appear here...';
+        }
+
+        // Load default
+        loadExercise();
+
+        async function runCode() {
+            const code = document.getElementById('code').value;
+            const outputEl = document.getElementById('output');
+            const statusEl = document.getElementById('status');
+            const exKey = document.getElementById('exerciseSelect').value;
+            
+            statusEl.textContent = 'Running...';
+            outputEl.textContent = 'Executing...';
+            
+            const payload = {
+                source_code: code,
+                language_id: 71, // Python 3.8.1 (Judge0 Default)
+                stdin: ""
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/submissions?base64_encoded=false&wait=true`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error(`API Error: ${response.status}`);
+
+                const result = await response.json();
+                
+                let output = (result.stdout || "") + (result.stderr || "") + (result.compile_output || "");
+                output = output.trim() || "No output";
+                
+                outputEl.textContent = output;
+
+                // Verification
+                const verifyMsg = exercises[exKey].check(output);
+                if (verifyMsg.includes("✅")) {
+                    statusEl.innerHTML = `<span class="success">${verifyMsg}</span>`;
+                } else {
+                    statusEl.innerHTML = `<span class="error">${verifyMsg}</span>`;
+                }
+
+            } catch (err) {
+                console.error(err);
+                outputEl.textContent = `Connection failure. Is Docker running?\n${err.message}`;
+                statusEl.textContent = 'Error';
+            }
+        }
+    </script>
+</body>
+</html>
