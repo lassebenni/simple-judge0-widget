@@ -178,7 +178,7 @@
         .simple-editor { margin-bottom: 0; }
         #code-simple { 
             width: 100%;
-            height: 300px; 
+            height: 400px; 
             border-radius: 6px; 
             border: 1px solid var(--border-color); 
             padding: 12px;
@@ -360,8 +360,14 @@
 
             document.getElementById('instructions').innerText = ex.desc;
             
-            if (ex.files) {
-                projectFiles = JSON.parse(JSON.stringify(ex.files));
+            if (isProjectView) {
+                if (ex.files) {
+                    projectFiles = JSON.parse(JSON.stringify(ex.files));
+                } else {
+                    // Wrap simple exercise as a project file
+                    const fileName = currentLang === 'javascript' ? 'main.js' : 'main.py';
+                    projectFiles = { [fileName]: { content: ex.code || "" } };
+                }
                 activeFileKey = ex.entry_point || Object.keys(projectFiles)[0];
                 document.getElementById('code').value = projectFiles[activeFileKey].content;
                 renderProjectUI();
@@ -370,6 +376,7 @@
             }
 
             document.getElementById('status').innerText = 'Ready';
+            document.getElementById('status').classList.remove('status-error', 'status-success');
             document.getElementById('output').innerText = 'Output will appear here...';
             
             const url = new URL(window.location);
@@ -391,14 +398,13 @@
                 if (params.get('lang') === 'js' || params.get('lang') === 'javascript') {
                     currentLang = 'javascript';
                     exercises = config.javascript;
-                    document.getElementById('appTitle').innerText = "Interactive JavaScript Runner";
-                    document.title = "Interactive JavaScript Runner";
                 } else {
                     currentLang = 'python';
                     exercises = config.python;
-                    document.getElementById('appTitle').innerText = "Interactive Python Runner";
-                    document.title = "Interactive Python Runner";
                 }
+
+                document.getElementById('appTitle').innerText = currentLang === 'javascript' ? "Interactive JavaScript Runner" : "Interactive Python Runner";
+                document.title = document.getElementById('appTitle').innerText;
 
                 const select = document.getElementById('exerciseSelect');
                 select.innerHTML = '';
@@ -431,6 +437,7 @@
             const ex = exercises[exKey];
 
             statusEl.innerText = mode === 'verify' ? '⏳ Verifying...' : '⏳ Running...';
+            statusEl.classList.remove('status-error', 'status-success');
             outputEl.innerText = 'Executing...';
 
             let payload = {
@@ -460,6 +467,7 @@
                     }
                 } catch (e) {
                     statusEl.innerText = "❌ Test Load Fail";
+                    statusEl.classList.add('status-error');
                     return;
                 }
             }
@@ -490,6 +498,7 @@
                 outputEl.innerText = output;
             } catch (e) {
                 statusEl.innerText = "Connection Error";
+                statusEl.classList.add('status-error');
             }
         }
 
