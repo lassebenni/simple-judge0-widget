@@ -31,15 +31,24 @@
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
         }
 
+        /* Global Reset for layout sanity */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: auto;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
-            padding: 0;
-            margin: 0;
             transition: background-color 0.3s, color 0.3s;
-            /* Was causing height issues in Notion embeds */
-            min-height: auto; 
         }
 
         .app-container {
