@@ -31,12 +31,9 @@
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
         }
 
-        /* Global Reset for layout sanity */
-        *, *::before, *::after {
-            box-sizing: border-box;
-        }
+        *, *::before, *::after { box-sizing: border-box; }
 
-        html {
+        html, body {
             width: 100%;
             height: 100%;
             margin: 0;
@@ -48,27 +45,19 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
-            width: 100%;
-            min-height: 100%;
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
             transition: background-color 0.3s, color 0.3s;
         }
 
         .app-container {
             width: 100%;
-            max-width: 900px; /* Centered compact view on desktop */
+            max-width: 1000px;
             margin: 0 auto;
             background: var(--container-bg);
-            border: none;
-            border-radius: 0;
-            box-shadow: none;
             padding: 12px;
             display: flex;
             flex-direction: column;
             gap: 12px;
-            min-height: 100%;
+            min-height: 100vh;
         }
 
         .header {
@@ -79,17 +68,9 @@
             padding-bottom: 8px;
         }
 
-        h3 { 
-            margin: 0; 
-            font-weight: 600; 
-            font-size: 16px;
-        }
+        h3 { margin: 0; font-weight: 600; font-size: 16px; }
 
-        .controls {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
+        .controls { display: flex; gap: 8px; align-items: center; }
 
         select {
             padding: 4px 8px;
@@ -110,71 +91,107 @@
             line-height: 1.4;
         }
 
-        .editor-container {
-            position: relative;
+        /* PROJECT UI STYLES */
+        .project-layout {
+            display: none;
+            grid-template-columns: 180px 1fr;
+            height: 450px;
             border: 1px solid var(--border-color);
             border-radius: 6px;
             overflow: hidden;
         }
 
-        textarea {
+        .file-tree {
+            background: rgba(0, 0, 0, 0.05);
+            border-right: 1px solid var(--border-color);
+            overflow-y: auto;
+            padding: 10px 0;
+        }
+
+        body.dark-mode .file-tree { background: rgba(0, 0, 0, 0.3); }
+
+        .file-item {
+            padding: 6px 15px;
+            cursor: pointer;
+            font-size: 12px;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            opacity: 0.7;
+        }
+
+        .file-item:hover { background: rgba(0, 0, 0, 0.05); opacity: 1; }
+        .file-item.active {
+            background: rgba(0, 120, 215, 0.1);
+            color: #0078d7;
+            opacity: 1;
+            font-weight: 600;
+        }
+
+        .editor-area {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background: var(--code-bg);
+        }
+
+        .tab-bar {
+            display: flex;
+            background: rgba(0, 0, 0, 0.02);
+            border-bottom: 1px solid var(--border-color);
+            overflow-x: auto;
+        }
+
+        body.dark-mode .tab-bar { background: rgba(0, 0, 0, 0.2); }
+
+        .tab {
+            padding: 8px 15px;
+            font-size: 11px;
+            cursor: pointer;
+            border-right: 1px solid var(--border-color);
+            color: var(--text-color);
+            opacity: 0.6;
+            white-space: nowrap;
+        }
+
+        .tab.active {
+            background: var(--code-bg);
+            opacity: 1;
+            border-bottom: 2px solid var(--accent-color);
+        }
+
+        #code {
+            flex: 1;
             width: 100%;
-            height: 160px;
             padding: 12px;
-            font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+            font-family: 'Menlo', 'Monaco', monospace;
             font-size: 13px;
             border: none;
-            background: var(--code-bg);
+            background: transparent;
             color: var(--text-color);
-            resize: vertical;
+            resize: none;
             outline: none;
-            box-sizing: border-box;
         }
+
+        /* SIMPLE UI STYLES */
+        .simple-editor { margin-bottom: 0; }
+        #code-simple { height: 300px; border-radius: 6px; border: 1px solid var(--border-color); }
 
         .toolbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px 12px;
-            background: var(--bg-color);
-            border-top: 1px solid var(--border-color);
+            padding: 8px 0;
         }
 
-        .status {
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--text-color);
-            opacity: 0.8;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
+        .status { font-size: 12px; font-weight: 500; }
+        .status-success { color: #2ea043 !important; }
+        .status-error { color: #cb2431 !important; }
 
-        button.run-btn {
-            background: var(--accent-color);
-            color: white;
-            border: none;
-            padding: 6px 16px;
-            border-radius: 4px;
-            font-weight: 600;
-            font-size: 13px;
-            cursor: pointer;
-            transition: transform 0.1s, background-color 0.2s;
-        }
+        .btn-group { display: flex; gap: 8px; }
 
-        button.run-btn:hover { background: var(--accent-hover); }
-        button.run-btn:active { transform: scale(0.98); }
-
-        /* Button Group & Verify Button */
-        .btn-group {
-            display: flex;
-            gap: 8px;
-        }
-
-        button.verify-btn {
-            background: transparent;
-            color: var(--accent-color);
-            border: 1px solid var(--accent-color);
+        button.run-btn, button.verify-btn {
             padding: 6px 16px;
             border-radius: 4px;
             font-weight: 600;
@@ -183,50 +200,34 @@
             transition: all 0.2s;
         }
 
-        button.verify-btn:hover {
-            background: rgba(40, 167, 69, 0.1);
-        }
-        button.verify-btn:active { transform: scale(0.98); }
+        button.run-btn { background: var(--accent-color); color: white; border: none; }
+        button.run-btn:hover { background: var(--accent-hover); }
+
+        button.verify-btn { background: transparent; color: var(--accent-color); border: 1px solid var(--accent-color); }
+        button.verify-btn:hover { background: rgba(40, 167, 69, 0.1); }
 
         #output {
             background: var(--output-bg);
             color: var(--output-text);
             padding: 12px;
             border-radius: 6px;
-            font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+            font-family: 'Menlo', 'Monaco', monospace;
             font-size: 12px;
-            min-height: 60px;
+            min-height: 80px;
             white-space: pre-wrap;
-            overflow-x: auto;
             border: 1px solid var(--border-color);
         }
 
-        /* Utility classes for verification status */
-        .status-success { color: #2ea043 !important; }
-        .status-error { color: #cb2431 !important; }
-        .theme-toggle {
-            background: none;
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            padding: 4px 8px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-        }
+        .theme-toggle { background: none; border: 1px solid var(--border-color); color: var(--text-color); padding: 4px 8px; border-radius: 4px; cursor: pointer; }
     </style>
 </head>
 <body class="dark-mode">
-
     <div class="app-container">
         <div class="header">
-            <h3>Interactive Python Runner</h3>
+            <h3 id="appTitle">Interactive Python Runner</h3>
             <div class="controls">
                 <select id="exerciseSelect" onchange="loadExercise()">
-                    <option value="version">1. Verify Setup</option>
-                    <option value="functions">2. Functions</option>
-                    <option value="types">3. Type Hints</option>
-                    <option value="control">4. Control Flow</option>
-                    <option value="custom">Playground</option>
+                    <!-- Options injected by JS -->
                 </select>
                 <button class="theme-toggle" onclick="toggleTheme()">🌗</button>
             </div>
@@ -234,14 +235,25 @@
 
         <div id="instructions" class="instructions">Select an exercise to begin.</div>
 
-        <div class="editor-container">
-            <textarea id="code" spellcheck="false"></textarea>
-            <div class="toolbar">
-                <span class="status" id="status">Ready to Run</span>
-                <div class="btn-group">
-                    <button class="run-btn" onclick="runCode()">Run ▶</button>
-                    <button class="verify-btn" onclick="verifyCode()">Verify ✅</button>
-                </div>
+        <!-- Project Layout -->
+        <div class="project-layout" id="projectLayout">
+            <div class="file-tree" id="fileTree"></div>
+            <div class="editor-area">
+                <div class="tab-bar" id="tabBar"></div>
+                <textarea id="code" spellcheck="false"></textarea>
+            </div>
+        </div>
+
+        <!-- Simple Layout -->
+        <div class="simple-editor" id="simpleLayout">
+            <textarea id="code-simple" spellcheck="false"></textarea>
+        </div>
+
+        <div class="toolbar">
+            <span class="status" id="status">Ready to Run</span>
+            <div class="btn-group">
+                <button class="run-btn" onclick="runCode()">Run ▶</button>
+                <button class="verify-btn" onclick="verifyCode()">Verify ✅</button>
             </div>
         </div>
 
@@ -249,198 +261,225 @@
     </div>
 
     <script>
-        // CONFIGURATION
         const API_URL = "https://simple-judge0-backend-production.up.railway.app";
+        
+        // State
+        let exercises = {};
+        let currentLang = 'python';
+        let isProjectView = false;
+        let projectFiles = {}; // { name: { content: "" } }
+        let activeFileKey = '';
 
-        // Enable Tab Indentation & Shortcuts
-        document.getElementById('code').addEventListener('keydown', function(e) {
-            if (e.key === 'Tab') {
-                e.preventDefault();
-                const start = this.selectionStart;
-                const end = this.selectionEnd;
-                this.value = this.value.substring(0, start) + "    " + this.value.substring(end);
-                this.selectionStart = this.selectionEnd = start + 4;
-            }
-            if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
-                e.preventDefault();
-                if (e.shiftKey) verifyCode();
-                else runCode();
-            }
-        });
+        // UI Helpers
+        function getActiveTextArea() {
+            return isProjectView ? document.getElementById('code') : document.getElementById('code-simple');
+        }
 
-        // Disable Paste & Drag-and-Drop
+        function toggleTheme() { document.body.classList.toggle('dark-mode'); }
+
+        // Keyboard & Input
+        function setupEditorEvents(el) {
+            el.addEventListener('keydown', function(e) {
+                if (e.key === 'Tab') {
+                    e.preventDefault();
+                    const start = this.selectionStart;
+                    const end = this.selectionEnd;
+                    this.value = this.value.substring(0, start) + "    " + this.value.substring(end);
+                    this.selectionStart = this.selectionEnd = start + 4;
+                }
+                if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+                    e.preventDefault();
+                    if (e.shiftKey) verifyCode(); else runCode();
+                }
+            });
+            el.addEventListener('paste', blockInput);
+            el.addEventListener('drop', blockInput);
+        }
+
         function blockInput(e) {
             e.preventDefault();
             const statusEl = document.getElementById('status');
-            statusEl.innerText = "⚠️ Copy/Paste disabled (Type it out!)";
-            statusEl.style.color = "#cb2431";
-            setTimeout(() => {
-                statusEl.innerText = "Ready to Run";
-                statusEl.style.color = "";
-            }, 2000);
+            const oldText = statusEl.innerText;
+            statusEl.innerText = "⚠️ Paste disabled";
+            statusEl.classList.add('status-error');
+            setTimeout(() => { statusEl.innerText = oldText; statusEl.classList.remove('status-error'); }, 1500);
         }
-        const editor = document.getElementById('code');
-        editor.addEventListener('paste', blockInput);
-        editor.addEventListener('drop', blockInput);
 
-        function toggleTheme() { document.body.classList.toggle('dark-mode'); }
-        function initTheme() {
-            if (new URLSearchParams(window.location.search).get('theme') === 'light') {
-                document.body.classList.remove('dark-mode');
+        setupEditorEvents(document.getElementById('code'));
+        setupEditorEvents(document.getElementById('code-simple'));
+
+        // Project Logic
+        function syncState() {
+            if (isProjectView && activeFileKey) {
+                projectFiles[activeFileKey].content = document.getElementById('code').value;
             }
         }
-        initTheme();
 
-        // EXERCISES (Loaded dynamically)
-        let exercisesPython = {};
-        let exercisesJS = {};
-        
-        let currentLang = 'python';
-        let exercises = {}; // Will be set after load
+        function switchFile(key) {
+            syncState();
+            activeFileKey = key;
+            document.getElementById('code').value = projectFiles[key].content;
+            renderProjectUI();
+        }
+
+        function renderProjectUI() {
+            const tree = document.getElementById('fileTree');
+            const tabs = document.getElementById('tabBar');
+            tree.innerHTML = '';
+            tabs.innerHTML = '';
+
+            Object.entries(projectFiles).forEach(([name, file]) => {
+                const item = document.createElement('div');
+                item.className = `file-item ${name === activeFileKey ? 'active' : ''}`;
+                item.innerHTML = `<span>📄</span> ${name}`;
+                item.onclick = () => switchFile(name);
+                tree.appendChild(item);
+
+                const tab = document.createElement('div');
+                tab.className = `tab ${name === activeFileKey ? 'active' : ''}`;
+                tab.innerText = name;
+                tab.onclick = () => switchFile(name);
+                tabs.appendChild(tab);
+            });
+        }
 
         function loadExercise() {
+            syncState();
             const key = document.getElementById('exerciseSelect').value;
-            if (!exercises[key]) return; 
             const ex = exercises[key];
-            
+            if (!ex) return;
+
             document.getElementById('instructions').innerText = ex.desc;
-            document.getElementById('code').value = ex.code;
-            document.getElementById('status').innerText = 'Ready to Run';
-            document.getElementById('status').className = 'status';
+            
+            if (ex.files) {
+                projectFiles = JSON.parse(JSON.stringify(ex.files));
+                activeFileKey = ex.entry_point || Object.keys(projectFiles)[0];
+                document.getElementById('code').value = projectFiles[activeFileKey].content;
+                renderProjectUI();
+            } else {
+                document.getElementById('code-simple').value = ex.code || "";
+            }
+
+            document.getElementById('status').innerText = 'Ready';
             document.getElementById('output').innerText = 'Output will appear here...';
             
-            const newUrl = new URL(window.location);
-            newUrl.searchParams.set('exercise', key);
-            window.history.replaceState({}, '', newUrl);
+            const url = new URL(window.location);
+            url.searchParams.set('exercise', key);
+            window.history.replaceState({}, '', url);
         }
 
         async function initApp() {
-            // Fetch configuration
+            const params = new URLSearchParams(window.location.search);
+            isProjectView = params.get('view') === 'project';
+            
+            document.getElementById('projectLayout').style.display = isProjectView ? 'grid' : 'none';
+            document.getElementById('simpleLayout').style.display = isProjectView ? 'none' : 'block';
+
             try {
                 const resp = await fetch('exercises.json');
-                if (!resp.ok) throw new Error("Failed to load exercises.json");
                 const config = await resp.json();
-                exercisesPython = config.python;
-                exercisesJS = config.javascript;
+                
+                if (params.get('lang') === 'js' || params.get('lang') === 'javascript') {
+                    currentLang = 'javascript';
+                    exercises = config.javascript;
+                    document.getElementById('appTitle').innerText = "Interactive JavaScript Runner";
+                } else {
+                    currentLang = 'python';
+                    exercises = config.python;
+                }
+
+                const select = document.getElementById('exerciseSelect');
+                select.innerHTML = '';
+                Object.entries(exercises).forEach(([key, ex], idx) => {
+                    const opt = document.createElement('option');
+                    opt.value = key;
+                    opt.innerText = `${idx + 1}. ${ex.name || key}`;
+                    select.appendChild(opt);
+                });
+
+                const exParam = params.get('exercise');
+                if (exParam && exercises[exParam]) select.value = exParam;
+                
+                loadExercise();
             } catch (e) {
                 console.error(e);
-                document.getElementById('instructions').innerText = "❌ Error loading exercises configuration.";
-                return;
+                document.getElementById('instructions').innerText = "Error loading exercises.";
             }
-
-            const params = new URLSearchParams(window.location.search);
-            
-            // Detect Language
-            if (params.get('lang') === 'javascript' || params.get('lang') === 'js') {
-                currentLang = 'javascript';
-                exercises = exercisesJS;
-                document.title = "Interactive JavaScript Runner";
-                document.querySelector('h3').innerText = "Interactive JavaScript Runner";
-            } else {
-                currentLang = 'python';
-                exercises = exercisesPython;
-            }
-
-            // Populate Select
-            const select = document.getElementById('exerciseSelect');
-            select.innerHTML = '';
-            
-            let index = 1;
-            for (const [key, val] of Object.entries(exercises)) {
-                const opt = document.createElement('option');
-                opt.value = key;
-                
-                // Numbering logic: Don't number 'custom' (Playground)
-                let label = val.name || key;
-                if (key !== 'custom') {
-                    label = `${index}. ${label}`;
-                    index++;
-                }
-                
-                opt.innerText = label;
-                select.appendChild(opt);
-            }
-
-            const exParam = params.get('exercise') || params.get('ex');
-            if (exParam && exercises[exParam]) {
-                select.value = exParam;
-            }
-            loadExercise();
         }
-        initApp();
 
         async function execute(mode) {
-            let code = document.getElementById('code').value;
-            const outputEl = document.getElementById('output');
+            syncState();
             const statusEl = document.getElementById('status');
+            const outputEl = document.getElementById('output');
             const exKey = document.getElementById('exerciseSelect').value;
-            
-            statusEl.innerHTML = mode === 'verify' ? '⏳ Verifying...' : '⏳ Running...';
-            statusEl.className = 'status';
-            outputEl.textContent = 'Executing...';
+            const ex = exercises[exKey];
 
-            // If VERIFY mode, fetch and append the test code
+            statusEl.innerText = mode === 'verify' ? '⏳ Verifying...' : '⏳ Running...';
+            outputEl.innerText = 'Executing...';
+
+            let payload = {
+                language_id: currentLang === 'javascript' ? 63 : 92,
+            };
+
+            if (isProjectView) {
+                payload.files = Object.entries(projectFiles).map(([name, f]) => ({ name, content: f.content }));
+                payload.entry_point = ex.entry_point || "main.py";
+            } else {
+                payload.source_code = document.getElementById('code-simple').value;
+            }
+
+            // Append tests if verifying
             if (mode === 'verify') {
                 try {
-                    const testUrl = exercises[exKey].testFile;
-                    const testResp = await fetch(testUrl);
-                    if (!testResp.ok) throw new Error(`Failed to load tests: ${testUrl}`);
+                    const testResp = await fetch(ex.testFile);
                     const testCode = await testResp.text();
                     
-                    code += "\n\n/* --- VERIFICATION TESTS --- */\n" + testCode;
+                    if (isProjectView) {
+                        payload.files.push({ name: "_test_script" + (currentLang === 'javascript' ? '.js' : '.py'), content: testCode });
+                        payload.entry_point = "_test_script" + (currentLang === 'javascript' ? '.js' : '.py');
+                    } else {
+                        payload.source_code += "\n\n/* TEST */\n" + testCode;
+                    }
                 } catch (e) {
-                    console.error("Test Load Error:", e);
-                    statusEl.innerText = "❌ Failed to load validation tests";
+                    statusEl.innerText = "❌ Test Load Fail";
                     return;
                 }
             }
 
-            const payload = {
-                source_code: code,
-                language_id: currentLang === 'javascript' ? 63 : 92,
-                stdin: ""
-            };
-
             try {
-                const response = await fetch(`${API_URL}/submissions?base64_encoded=false&wait=true`, {
+                const resp = await fetch(`${API_URL}/submissions`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-
-                if (!response.ok) throw new Error(`API Error: ${response.status}`);
-
-                const result = await response.json();
-                let output = (result.stdout || "") + (result.stderr || "") + (result.compile_output || "");
+                const result = await resp.json();
+                let output = (result.stdout || "") + (result.stderr || "");
                 output = output.trim() || "No output";
 
-                // Clean up the output display
                 if (mode === 'verify') {
                     if (output.includes("✅_PASS_✅")) {
-                        statusEl.innerHTML = '<span class="status-success">✅ Verification Passed!</span>';
+                        statusEl.innerHTML = '<span class="status-success">✅ Passed!</span>';
                         output = output.replace("✅_PASS_✅", "").trim();
                     } else if (output.includes("❌_FAIL:")) {
-                        const match = output.match(/❌_FAIL: (.*)/);
-                        const err = match ? match[1] : "Check logic";
-                        statusEl.innerHTML = `<span class="status-error">❌ ${err}</span>`;
+                        const m = output.match(/❌_FAIL: (.*)/);
+                        statusEl.innerHTML = `<span class="status-error">❌ ${m ? m[1] : 'Fail'}</span>`;
                     } else {
-                        statusEl.innerHTML = '<span class="status-error">❌ Execution/Syntax Error</span>';
+                        statusEl.innerHTML = '<span class="status-error">❌ Error</span>';
                     }
                 } else {
-                    statusEl.innerText = "Execution Complete";
+                    statusEl.innerText = "Done";
                 }
-                
-                outputEl.textContent = output;
-
-            } catch (err) {
-                console.error(err);
-                outputEl.textContent = `Connection failure.\n${err.message}`;
-                statusEl.innerHTML = '<span class="status-error">Connection Error</span>';
+                outputEl.innerText = output;
+            } catch (e) {
+                statusEl.innerText = "Connection Error";
             }
         }
 
         function runCode() { execute('run'); }
         function verifyCode() { execute('verify'); }
+
+        initApp();
     </script>
+
 </body>
 </html>
