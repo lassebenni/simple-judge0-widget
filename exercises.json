@@ -1,32 +1,42 @@
 {
     "python": {
+        "stats": {
+            "name": "1. Calculate Stats",
+            "desc": "Task: Implement 'calculate_stats(numbers, rounded=False)'. Return a tuple (sum, average). If rounded is True, round the average to the nearest integer.",
+            "code": "def calculate_stats(numbers, rounded=False):\n    # TODO: Calculate sum and average\n    total = 0\n    avg = 0\n    return (total, avg)",
+            "testFile": "tests/python/stats_test.py"
+        },
+        "main_guard": {
+            "name": "2. Main Guard",
+            "desc": "Task: Fix the script below so that the 'Testing...' output ONLY appears when run directly, not when imported as a module.",
+            "code": "def double(x):\n    return x * 2\n\n# TODO: Wrap this in a main guard\nprint('Testing double function...')\nprint(double(21))",
+            "testFile": "tests/python/guard_test.py"
+        },
+        "modules_demo": {
+            "name": "3. Modular Cleanup (Project)",
+            "desc": "Task: Organize your code. 1) In 'utils.py', implement 'clean_val(s)'. 2) In 'main.py', import it and print cleaned values for '  ALICE  ' and '  bob '.",
+            "files": {
+                "main.py": { "content": "# TODO: Import clean_val from utils\n\nnames = ['  ALICE  ', '  bob ']\n# TODO: Print cleaned names" },
+                "utils.py": { "content": "def clean_val(s):\n    # TODO: strip and lowercase\n    return s" }
+            },
+            "entry_point": "main.py",
+            "testFile": "tests/python/modules_test.py"
+        },
         "version": {
-            "name": "Check Version",
-            "desc": "Task: Check Python version. (Should be 3.11)",
+            "name": "System: Check Version",
+            "desc": "Check Python version. (Should be 3.11)",
             "code": "import sys\nprint(f\"Python Version: {sys.version.split()[0]}\")",
             "testFile": "tests/python/version.py"
         },
         "functions": {
-            "name": "Functions",
-            "desc": "Task: Implement 'is_empty(val)' to return True for None or empty strings.",
-            "code": "def is_empty(val):\n    # TODO: Implement logic here\n    if val is None:\n        return True\n    return False",
+            "name": "Legacy: Functions",
+            "desc": "Implement 'is_empty(val)' to return True for None or empty strings.",
+            "code": "def is_empty(val):\n    if val is None:\n        return True\n    return False",
             "testFile": "tests/python/functions.py"
-        },
-        "types": {
-            "name": "Type Hints",
-            "desc": "Task: Add type hints to 'process_items'.",
-            "code": "from typing import List, Callable, Any\n\ndef process_items(items, transformer):\n    return [transformer(i) for i in items]\n\n# Test helper\ndef double(x: int) -> int: return x * 2",
-            "testFile": "tests/python/types.py"
-        },
-        "control": {
-            "name": "Control Flow",
-            "desc": "Task: Modify loop. 1) Skip negatives. 2) Break if > 50. Append valid nums to 'result'.",
-            "code": "numbers = [10, -5, 20, 60, 30]\nresult = []\n\nfor n in numbers:\n    # TODO: Implement logic\n    print(n)\n    result.append(n)",
-            "testFile": "tests/python/control.py"
         },
         "custom": {
             "name": "Playground",
-            "desc": "Playground",
+            "desc": "Python Playground",
             "code": "print('Hello Python!')",
             "testFile": "tests/python/custom.py"
         }
@@ -50,12 +60,6 @@
             "code": "function sum(a, b) {\n    // TODO: Implement\n    return 0;\n}",
             "testFile": "tests/javascript/js_demo.js"
         },
-        "custom": {
-            "name": "Playground",
-            "desc": "Playground",
-            "code": "console.log('Hello JavaScript!');",
-            "testFile": "tests/javascript/js_demo.js"
-        },
         "json_parser": {
             "name": "JSON Parser Project",
             "desc": "Task: Create a project with multiple files. 1) 'data.json' with content. 2) 'main.js' that reads it.",
@@ -65,6 +69,12 @@
             },
             "entry_point": "main.js",
             "testFile": "tests/javascript/js_project_test.js"
+        },
+        "custom": {
+            "name": "Playground",
+            "desc": "JavaScript Playground",
+            "code": "console.log('Hello JavaScript!');",
+            "testFile": "tests/javascript/js_demo.js"
         }
     }
 }
