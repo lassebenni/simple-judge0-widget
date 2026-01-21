@@ -226,6 +226,19 @@
         // CONFIGURATION
         const API_URL = "https://simple-judge0-backend-production.up.railway.app";
 
+        // Enable Tab Indentation
+        document.getElementById('code').addEventListener('keydown', function(e) {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                // Insert 4 spaces
+                this.value = this.value.substring(0, start) + "    " + this.value.substring(end);
+                // Move caret
+                this.selectionStart = this.selectionEnd = start + 4;
+            }
+        });
+
         // THEME LOGIC
         function toggleTheme() {
             document.body.classList.toggle('dark-mode');
